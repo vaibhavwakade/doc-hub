@@ -1,4 +1,4 @@
-import { User } from "../../../types/User";
+import { User } from "../../../../types/User";
 import { api } from "../axios";
 interface LoginData {
   email: string;
