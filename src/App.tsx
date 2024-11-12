@@ -13,7 +13,7 @@ export default function Home() {
             size={40}
             className="text-4xl bg-slate-50 rounded-full p-1"
           />
-          <h1 className="font-bold text-2xl ml-2">Doc Hub</h1>
+          <h1 className="font-bold text-2xl ml-2">Doc Navigator</h1>
         </div>
         <div>
           <Button className="px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-50">
@@ -24,13 +24,16 @@ export default function Home() {
       <div className="md:max-w-[1780px] w-[95%] mx-auto   min-h-screen md:px-3">
         {/* Header Section */}
         <header className="bg-gradient-to-r mt-4 from-blue-500 to-purple-600 text-white py-12 text-center rounded-lg shadow-md mb-8">
-          <h1 className="text-5xl font-extrabold">Welcome to Doc Hub</h1>
+          <h1 className="text-5xl font-extrabold">Welcome to Doc Navigator</h1>
           <p className="text-[18px] md:text-xl mt-4">
             Your ultimate document management solution
           </p>
-          <Button onClick={() => { 
-            navigate('/auth/login')
-          }} className="mt-6 px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-200">
+          <Button
+            onClick={() => {
+              navigate("/auth/login");
+            }}
+            className="mt-6 px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-200"
+          >
             Get Started
           </Button>
         </header>
@@ -58,7 +61,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold mb-2">Stay Organized</h2>
             <p className="text-gray-600">
               {" "}
-              Keep your documents organized and organized with Doc Hub.
+              Keep your documents organized and organized with Doc Navigator.
             </p>
           </div>
         </section>
@@ -68,8 +71,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <blockquote className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
               <p className="text-gray-700 italic">
-                "Doc Hub has transformed our workflow. It's fast, reliable, and
-                easy to use!"
+                "Doc Navigator has transformed our workflow. It's fast,
+                reliable, and easy to use!"
               </p>
               <div className="flex justify-center gap-3 mt-3 ">
                 <Star className="text-yellow-500" />
@@ -98,8 +101,8 @@ export default function Home() {
             </blockquote>
             <blockquote className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
               <p className="text-gray-700 italic">
-                "Collaboration has never been easier with Doc Hub's real-time
-                features."
+                "Collaboration has never been easier with Doc Navigator's
+                real-time features."
               </p>
               {/* add stars */}
               <div className="flex justify-center gap-3 mt-3 ">

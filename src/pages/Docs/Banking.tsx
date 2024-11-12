@@ -25,8 +25,10 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 function Banking({ docType }: DocsFormProps) {
+  const navigate =useNavigate()
   const [docs] = useState([
     {
       id: 1,
@@ -65,11 +67,19 @@ function Banking({ docType }: DocsFormProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-500 text-white hover:bg-blue-600">
-              Add Document
+          <div>
+            <Button onClick={() => {
+              navigate('/dashboard/banking-steps')
+              
+            }} className="bg-blue-500 text-white hover:bg-blue-600 mr-4">
+              Banking Steps
             </Button>
-          </DialogTrigger>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-500 text-white hover:bg-blue-600">
+                Add Document
+              </Button>
+            </DialogTrigger>
+          </div>
           <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
               <DialogTitle>Add Document</DialogTitle>

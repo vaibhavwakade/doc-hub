@@ -55,7 +55,7 @@ const data = {
   },
   teams: [
     {
-      name: "DoC Hub",
+      name: "Doc Navigator",
       logo: Container,
       plan: " Enterprise",
     },
@@ -86,13 +86,15 @@ const data = {
         {
           title: "Gov. Documents",
           url: "/dashboard/gov-documents",
-        },{
+        },
+        {
           title: "Finance",
           url: "/dashboard/finance",
-        },{
+        },
+        {
           title: "Mutual funds",
           url: "/dashboard/mutual-funds",
-        }
+        },
       ],
     },
   ],
