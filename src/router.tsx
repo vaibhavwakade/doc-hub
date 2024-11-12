@@ -15,6 +15,7 @@ import Banking from "./pages/Docs/Banking";
 import { DocType } from "./types/DocsType";
 import BankingSteps from "./pages/Docs/BankingSteps";
 import EducationSteps from "./pages/Docs/EducationSteps";
+import FinanceSteps from "./pages/Docs/FinanceSteps";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "finance",
         element: <Finance docType={DocType.Finance} />,
+      },
+      {
+        path: "finance-steps",
+        element: <FinanceSteps />,
       },
       {
         path: "mutual-funds",

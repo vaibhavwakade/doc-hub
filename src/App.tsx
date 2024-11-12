@@ -30,7 +30,7 @@ export default function Home() {
           </p>
           <Button
             onClick={() => {
-              navigate("/auth/login");
+              navigate("/dashboard/finance");
             }}
             className="mt-6 px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-200"
           >

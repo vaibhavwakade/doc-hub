@@ -22,10 +22,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"; 
+} from "@/components/ui/card";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 function Finance({ docType }: DocsFormProps) {
+  const navigate = useNavigate();
   const [docs] = useState([
     {
       id: 1,
@@ -64,11 +66,22 @@ function Finance({ docType }: DocsFormProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-500 text-white hover:bg-blue-600">
-              Add Document
+          <div>
+            <Button
+              onClick={() => {
+                navigate("/dashboard/finance-steps/");
+              }}
+              className="bg-blue-500 text-white hover:bg-blue-600 mr-4"
+            >
+              Finance Steps
             </Button>
-          </DialogTrigger>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-500 text-white hover:bg-blue-600">
+                Add Document
+              </Button>
+            </DialogTrigger>
+          </div>
+
           <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
               <DialogTitle>Add Document</DialogTitle>
@@ -98,7 +111,9 @@ function Finance({ docType }: DocsFormProps) {
                 {doc.date}
               </p>
               <p className="text-sm mt-3 text-gray-500">
-                <span className="text-gray-800 font-semibold">Expiry Date :</span>{" "}
+                <span className="text-gray-800 font-semibold">
+                  Expiry Date :
+                </span>{" "}
                 {doc.expired_in_time}
               </p>
               <Badge
