@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Container, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "./store/userStore";
+import { useLogout } from "./features/Auth/useLogout";
 
 export default function Home() {
+  const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
+  const { logoutUser, isPending } = useLogout();
   return (
     <>
       <nav className="flex justify-between items-center py-5 bg-white z-[9999] sticky top-0 shadow-xl h-20 px-5">
@@ -14,9 +18,22 @@ export default function Home() {
           />
         </div>
         <div>
-          <Button className="px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-50">
-            Logout
-          </Button>
+          {user ? (
+            <Button
+              disabled={isPending}
+              onClick={() => logoutUser()}
+              className="px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-50"
+            >
+              {isPending ? "Logging out..." : "Logout"}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => navigate("/auth/login")}
+              className="px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-50"
+            >
+              Login
+            </Button>
+          )}
         </div>
       </nav>
       <div className="md:max-w-[1780px] w-[95%] mx-auto   min-h-screen md:px-3">

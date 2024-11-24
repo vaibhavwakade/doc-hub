@@ -1,14 +1,11 @@
 import { useToast } from "@/hooks/use-toast";
 import { registerApi } from "@/services/api/auth/authApis";
-import { useUserStore } from "@/store/userStore";
-import { User } from "@/types/User";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
 export function useRegister() {
   const navigate = useNavigate();
-  const setUser = useUserStore((user) => user.setUser);
   const { toast } = useToast();
   const {
     mutate: registerUser,
@@ -16,14 +13,13 @@ export function useRegister() {
     error,
   } = useMutation({
     mutationFn: registerApi,
-    onSuccess: (data: { user: User }) => {
+    onSuccess: () => {
       toast({
         title: "Registered Successfully",
         description: "You have successfully registered.",
         variant: "default",
       });
-      setUser(data?.user as User);
-      navigate("/dashboard");
+      navigate("/auth/login");
     },
     onError: (err: AxiosError) => {
       if (err.response?.status === 400) {
