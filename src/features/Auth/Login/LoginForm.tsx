@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 export default function LoginForm() {
   return (
     <div className="flex h-screen w-full items-center justify-center px-4">
-      <Card className="mx-auto max-w-sm">
+      <Card className="mx-auto w-full max-w-md shadow-none border-none bg-transparent">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
@@ -37,7 +37,7 @@ export default function LoginForm() {
               </div>
               <Input id="password" type="password" required />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full bg-blue-600">
               Login
             </Button>
           </div>

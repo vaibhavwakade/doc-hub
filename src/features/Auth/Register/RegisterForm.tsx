@@ -47,7 +47,7 @@ export default function RegisterForm() {
 
   return (
     <div className="flex h-screen w-full items-center justify-center px-4">
-      <Card className="mx-auto max-w-sm">
+  <Card className="mx-auto w-full max-w-md shadow-none border-none bg-transparent">
         <CardHeader>
           <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription>
@@ -108,8 +108,8 @@ export default function RegisterForm() {
                 placeholder="********"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Registering..." : "Register"}
+            <Button type="submit" className="w-full bg-blue-600" disabled={isPending}>
+              {isPending ? "Signing up..." : "Signup"}
             </Button>
           </form>
 
