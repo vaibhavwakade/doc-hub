@@ -28,6 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 function Banking({ docType }: DocsFormProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const navigate =useNavigate()
   const [docs] = useState([
     {
@@ -85,7 +87,7 @@ function Banking({ docType }: DocsFormProps) {
               <DialogTitle>Add Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-2">
-              <DocsForm docType={docType} />
+              <DocsForm docType={docType} onClose={() => setDialogOpen(false)} />
             </div>
           </DialogContent>
         </Dialog>
@@ -124,7 +126,7 @@ function Banking({ docType }: DocsFormProps) {
               </Badge>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Dialog>
+              <Dialog onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"

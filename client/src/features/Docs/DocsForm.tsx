@@ -20,9 +20,12 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useCreateDocument } from "./useCreateDocument";
+import { useToast } from "@/hooks/use-toast";
 
 type DocsFormProps = {
   docType: string;
+  onClose: () => void; // New prop for closing the modal
 };
 
 const formSchema = z.object({
@@ -37,7 +40,9 @@ const formSchema = z.object({
   }),
 });
 
-function DocsForm({ docType }: DocsFormProps) {
+function DocsForm({ docType, onClose }: DocsFormProps) {
+  const { toast } = useToast();
+  const { addDocument, isPending, } = useCreateDocument();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,20 +54,34 @@ function DocsForm({ docType }: DocsFormProps) {
   const { register, handleSubmit } = form;
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("description", values.description);
-    formData.append("file", values.file[0]);
-    console.log(values);
+    addDocument(
+      {
+        docType: docType,
+        title: values.title,
+        description: values.description,
+        file: values.file[0],
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          toast({
+            title: "Document created",
+            description: "Document created successfully",
+          });
+          onClose(); // Close the modal on success
+        },
+      }
+    );
   }
+
+
 
   return (
     <div>
       <section>
-        {/* Wrap in a native form element */}
         <form onSubmit={handleSubmit(onSubmit)}>
           <Form {...form}>
-            <Card className="">
+            <Card>
               <CardHeader>
                 <CardTitle>
                   Create a new{" "}
@@ -129,7 +148,9 @@ function DocsForm({ docType }: DocsFormProps) {
                           <span className="ml-1">Cancel</span>
                         </Button>
                       </Link>
-                      <Button type="submit">Submit</Button>
+                      <Button type="submit">
+                        {isPending ? "Saving..." : "Save"}
+                      </Button>
                     </div>
                   </div>
                 </div>
