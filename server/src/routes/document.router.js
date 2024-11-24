@@ -2,6 +2,7 @@ import { Router } from "express";
 import { verifyJwt } from "../middleware/auth.middleware.js";
 import {
   createDocument,
+  deleteDocument,
   getUserDocumentsByType,
   updateDocument,
 } from "../controllers/document.controller.js";
@@ -21,7 +22,7 @@ router.route("/create").post(
 );
 
 router.route("/user-documents").get(verifyJwt, getUserDocumentsByType);
-
 router.route("/update/:documentId").patch(verifyJwt, updateDocument);
+router.route("/delete/:documentId").delete(verifyJwt, deleteDocument);
 
 export default router;
