@@ -13,7 +13,7 @@ export default function Home() {
             size={40}
             className="text-4xl bg-slate-50 rounded-full p-1"
           />
-          <h1 className="font-bold text-2xl ml-2">Doc Navigator</h1>
+          <h1 className="font-bold text-2xl ml-2">Docs Navigator</h1>
         </div>
         <div>
           <Button className="px-6 py-2 bg-white text-blue-500 font-bold rounded-full shadow hover:bg-gray-50">
@@ -24,7 +24,7 @@ export default function Home() {
       <div className="md:max-w-[1780px] w-[95%] mx-auto   min-h-screen md:px-3">
         {/* Header Section */}
         <header className="bg-gradient-to-r mt-4 from-blue-500 to-purple-600 text-white py-12 text-center rounded-lg shadow-md mb-8">
-          <h1 className="text-5xl font-extrabold">Welcome to Doc Navigator</h1>
+          <h1 className="text-5xl font-extrabold">Welcome to Docs Navigator</h1>
           <p className="text-[18px] md:text-xl mt-4">
             Your ultimate document management solution
           </p>
@@ -101,7 +101,7 @@ export default function Home() {
             </blockquote>
             <blockquote className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
               <p className="text-gray-700 italic">
-                "Collaboration has never been easier with Doc Navigator's
+                "Collaboration has never been easier with Docs Navigator's
                 real-time features."
               </p>
               {/* add stars */}
