@@ -132,6 +132,10 @@ export const getUserDocumentsByType = asyncHandler(async (req, res) => {
     const documents = await Document.find({
       author: userId,
       docType: docType,
+      expiryDate: { $gt: new Date() },
+      status: "active",
+    }).sort({
+      createdAt: -1,
     });
 
     if (documents.length === 0) {
@@ -174,7 +178,6 @@ export const updateDocument = asyncHandler(async (req, res) => {
       .status(401)
       .json(new ApiResponse(401, null, "User not authenticated"));
   }
-  console.log(req.body);
 
   if (!documentId) {
     return res
@@ -260,62 +263,64 @@ export const updateDocument = asyncHandler(async (req, res) => {
 });
 
 export const deleteDocument = asyncHandler(async (req, res) => {
-    const { documentId } = req.params; // Document ID from URL parameter
-  
-    if (!req.user) {
+  const { documentId } = req.params; // Document ID from URL parameter
+
+  if (!req.user) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, null, "User not authenticated"));
+  }
+
+  if (!documentId) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "Document ID is required"));
+  }
+
+  try {
+    // Find the document by its ID and the author (to ensure the user can only delete their documents)
+    const document = await Document.findOne({
+      _id: documentId,
+      author: req.user._id,
+    });
+
+    if (!document) {
       return res
-        .status(401)
-        .json(new ApiResponse(401, null, "User not authenticated"));
+        .status(404)
+        .json(
+          new ApiResponse(
+            404,
+            null,
+            "Document not found or you don't have permission to delete it"
+          )
+        );
     }
-  
-    if (!documentId) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, null, "Document ID is required"));
-    }
-  
-    try {
-      // Find the document by its ID and the author (to ensure the user can only delete their documents)
-      const document = await Document.findOne({
-        _id: documentId,
-        author: req.user._id,
+
+    // Delete the document from the database
+    await document.deleteOne();
+
+    // If the file was uploaded to Cloudinary, delete it from Cloudinary
+    if (document.fileUrl) {
+      const publicId = document.fileUrl.split("/").pop().split(".")[0]; // Extract the publicId from the URL
+      await cloudinary.uploader.destroy(`documents-doc-navigator/${publicId}`, {
+        resource_type: "raw", // Since it's a raw file (e.g., PDF)
       });
-  
-      if (!document) {
-        return res
-          .status(404)
-          .json(
-            new ApiResponse(
-              404,
-              null,
-              "Document not found or you don't have permission to delete it"
-            )
-          );
-      }
-  
-      // Delete the document from the database
-      await document.deleteOne();
-  
-      // If the file was uploaded to Cloudinary, delete it from Cloudinary
-      if (document.fileUrl) {
-        const publicId = document.fileUrl.split('/').pop().split('.')[0]; // Extract the publicId from the URL
-        await cloudinary.uploader.destroy(`documents-doc-navigator/${publicId}`, {
-          resource_type: "raw", // Since it's a raw file (e.g., PDF)
-        });
-      }
-  
-      res
-        .status(200)
-        .json(
-          new ApiResponse(200, null, "Document deleted successfully")
-        );
-    } catch (error) {
-        console.log(error);
-        
-      res
-        .status(500)
-        .json(
-          new ApiResponse(500, null, "An error occurred while deleting the document")
-        );
     }
-  });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, null, "Document deleted successfully"));
+  } catch (error) {
+    console.log(error);
+
+    res
+      .status(500)
+      .json(
+        new ApiResponse(
+          500,
+          null,
+          "An error occurred while deleting the document"
+        )
+      );
+  }
+});

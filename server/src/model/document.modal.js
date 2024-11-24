@@ -40,6 +40,11 @@ const DocumentSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["active", "expired"],
+      default: "active",
+    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
@@ -48,4 +53,3 @@ const DocumentSchema = new mongoose.Schema(
 
 // Export the Mongoose model
 export const Document = mongoose.model("Document", DocumentSchema);
-
