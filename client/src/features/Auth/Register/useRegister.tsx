@@ -16,13 +16,13 @@ export function useRegister() {
     error,
   } = useMutation({
     mutationFn: registerApi,
-    onSuccess: (data: unknown) => {
+    onSuccess: (data: { user: User }) => {
       toast({
         title: "Registered Successfully",
         description: "You have successfully registered.",
         variant: "default",
       });
-      setUser(data as User);
+      setUser(data?.user as User);
       navigate("/dashboard");
     },
     onError: (err: AxiosError) => {

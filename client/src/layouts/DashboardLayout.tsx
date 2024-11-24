@@ -45,64 +45,73 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Navigate, Outlet } from "react-router-dom";
+import { useUserStore } from "@/store/userStore";
+import { useLogout } from "@/features/Auth/useLogout";
 // This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Doc Navigator",
-      logo: Container,
-      plan: " Enterprise",
-    },
-  ],
-  navMain: [
-    {
-      title: "Uploads",
-      url: "#",
-      icon: CloudUpload,
-      isActive: true,
-      items: [
-        {
-          title: "Home",
-          url: "/dashboard/home",
-        },
-        {
-          title: "Education",
-          url: "/dashboard/education",
-        },
-        {
-          title: "Medical",
-          url: "/dashboard/medical",
-        },
-        {
-          title: "Banking",
-          url: "/dashboard/banking",
-        },
-        {
-          title: "Gov. Documents",
-          url: "/dashboard/gov-documents",
-        },
-        {
-          title: "Finance",
-          url: "/dashboard/finance",
-        },
-        {
-          title: "Mutual funds",
-          url: "/dashboard/mutual-funds",
-        },
-      ],
-    },
-  ],
-};
+
 
 export default function Dashboard() {
+  const token = useUserStore((state) => state.user);
+const {logoutUser,isPending}=useLogout()
+  const data = {
+    user: {
+      name: token?.name?.trim() ?? "User",
+      email: token?.email ?? "user@gmail.com",
+      avatar: "/avatars/shadcn.jpg",
+    },
+    teams: [
+      {
+        name: "Doc Navigator",
+        logo: Container,
+        plan: " Enterprise",
+      },
+    ],
+    navMain: [
+      {
+        title: "Uploads",
+        url: "#",
+        icon: CloudUpload,
+        isActive: true,
+        items: [
+          {
+            title: "Home",
+            url: "/dashboard/home",
+          },
+          {
+            title: "Education",
+            url: "/dashboard/education",
+          },
+          {
+            title: "Medical",
+            url: "/dashboard/medical",
+          },
+          {
+            title: "Banking",
+            url: "/dashboard/banking",
+          },
+          {
+            title: "Gov. Documents",
+            url: "/dashboard/gov-documents",
+          },
+          {
+            title: "Finance",
+            url: "/dashboard/finance",
+          },
+          {
+            title: "Mutual funds",
+            url: "/dashboard/mutual-funds",
+          },
+        ],
+      },
+    ],
+  };
   const [activeTeam, setActiveTeam] = React.useState(data.teams[0]);
 
+  if (!token) {
+    return <Navigate to={"/auth/login"} replace />;
+  }
+  
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -209,7 +218,7 @@ export default function Dashboard() {
                         src={data.user.avatar}
                         alt={data.user.name}
                       />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-lg">{data.user.name ? data.user.name[0] : "CN"}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
@@ -236,7 +245,7 @@ export default function Dashboard() {
                           alt={data.user.name}
                         />
                         <AvatarFallback className="rounded-lg">
-                          CN
+                         {data.user.name ? data.user.name[0] : "CN"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
@@ -255,18 +264,14 @@ export default function Dashboard() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
                       <BadgeCheck />
-                      Account
+                     Profile
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem>
-                      <Bell />
-                      Notifications
-                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={()=>logoutUser()}>
                     <LogOut />
-                    Log out
+                   {isPending? "Logging out...": "Logout"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

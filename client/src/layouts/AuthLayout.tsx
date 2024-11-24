@@ -4,7 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 function AuthLayout() {
   const token = useUserStore((state) => state.user);
 
-  if (token) {
+  if (token || token !== null) {
     return <Navigate to={"/dashboard"} replace />;
   }
   return (
