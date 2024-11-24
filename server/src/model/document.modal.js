@@ -13,6 +13,10 @@ export const DocType = {
 // Document Schema
 const DocumentSchema = new mongoose.Schema(
   {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     title: {
       type: String,
       required: true,
@@ -43,5 +47,5 @@ const DocumentSchema = new mongoose.Schema(
 );
 
 // Export the Mongoose model
-const Document = mongoose.model("Document", DocumentSchema);
-export default Document;
+export const Document = mongoose.model("Document", DocumentSchema);
+
