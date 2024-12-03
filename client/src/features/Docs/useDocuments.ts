@@ -7,7 +7,7 @@ export function useDocuments(type: string) {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["user-documents"],
+    queryKey: ["user-documents",type],
     queryFn: () => getUserDocumentsByType(type),
   });
 

@@ -28,6 +28,8 @@ export function useLogout() {
     },
     onError: (e: AxiosError) => {
       renewAccessToken();
+      clearUser();
+
       if (e.response?.status === 401) {
         toastFunction({
           title: "Error",

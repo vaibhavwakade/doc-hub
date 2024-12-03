@@ -2,10 +2,10 @@ import {
   createDocument,
   DocumentData,
 } from "@/services/api/document/documentApi";
-import { queryClient } from "@/services/queryClient/queryClient";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateDocument = () => {
+  const queryClient= useQueryClient()
   const {
     mutate: addDocument,
     isPending,
