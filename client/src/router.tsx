@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
 import AdminDashboard from "./layouts/DashboardLayout";
 import Login from "./pages/Auth/Login";
@@ -22,6 +22,10 @@ const router = createBrowserRouter([
     path: "dashboard",
     element: <AdminDashboard />,
     children: [
+      {
+        path: "/dashboard",
+        element: <Navigate to="/dashboard/home" replace />,
+      },
       {
         path: "home",
         element: <Home docType={DocType.Home} />,

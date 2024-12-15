@@ -35,9 +35,18 @@ const formSchema = z.object({
   description: z.string().min(5, {
     message: "Description must be at least 5 characters.",
   }),
-  file: z.instanceof(FileList).refine((file) => file.length === 1, {
+  file: z
+  .instanceof(FileList)
+  .refine((file) => file.length === 1, {
     message: "File is required.",
-  }),
+  })
+  .refine(
+    (file) =>
+      file.length === 1 && file[0].type === "application/pdf",
+    {
+      message: "Only PDF files are allowed.",
+    }
+  ),
 });
 
 function DocsForm({ docType, onClose }: DocsFormProps) {
@@ -129,12 +138,14 @@ function DocsForm({ docType, onClose }: DocsFormProps) {
                     name="file"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Upload PDF/Image</FormLabel>
+                        <FormLabel>Upload PDF</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
                             className="w-full"
+                            accept=".pdf"
                             {...register("file")}
+
                           />
                         </FormControl>
                         <FormMessage />
