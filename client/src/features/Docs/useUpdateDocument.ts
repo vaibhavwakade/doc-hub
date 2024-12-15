@@ -3,9 +3,10 @@ import {
   DocumentData,
   updateDocument,
 } from "@/services/api/document/documentApi";
-import { QueryClient, useMutation } from "@tanstack/react-query";
-const queryClient= new QueryClient();
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 export const useUpdateDocument = () => {
+  const queryClient = useQueryClient();
+
   const {
     mutate: editDocument,
     isPending,
