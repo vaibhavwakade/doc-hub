@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import {
   createDocument,
   DocumentData,
@@ -5,7 +6,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateDocument = () => {
-  const queryClient= useQueryClient()
+  const queryClient = useQueryClient();
   const {
     mutate: addDocument,
     isPending,
@@ -15,6 +16,10 @@ export const useCreateDocument = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["user-documents"],
+      });
+      toast({
+        title: "Document created",
+        description: "Document created successfully",
       });
     },
   });

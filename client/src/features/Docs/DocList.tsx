@@ -19,10 +19,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2, Edit3 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteDocument } from "./useDeleteDocuments";
+import EditDoc from "./EditDoc";
 interface Doc {
+  description: string;
+  docType: string;
   _id: number;
   title: string;
   date: Date;
@@ -108,7 +111,12 @@ const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
                 onClick={() => {}}
                 className="text-blue-600 hover:bg-blue-50"
               >
-                <Edit3 size={18} />
+                <EditDoc
+                  docType={doc?.docType}
+                  title={doc?.title}
+                  description={doc?.description}
+                  id={doc?._id as unknown as string}
+                />
               </Button>
               {/* Delete Button */}
               <AlertDialog>
@@ -165,6 +173,11 @@ const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
                     <p>
                       <span className="font-semibold">Title : </span>
                       {selectedDoc.title}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Title : </span>
+                      {selectedDoc.description}
                     </p>
                     <p>
                       <span className="font-semibold">Date : </span>

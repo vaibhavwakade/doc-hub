@@ -1,13 +1,13 @@
+import { toast } from "@/hooks/use-toast";
 import {
   DocumentData,
   updateDocument,
 } from "@/services/api/document/documentApi";
-import { queryClient } from "@/services/queryClient/queryClient";
-import { useMutation } from "@tanstack/react-query";
-
+import { QueryClient, useMutation } from "@tanstack/react-query";
+const queryClient= new QueryClient();
 export const useUpdateDocument = () => {
   const {
-    mutate: addDocument,
+    mutate: editDocument,
     isPending,
     error,
   } = useMutation({
@@ -22,11 +22,15 @@ export const useUpdateDocument = () => {
       queryClient.invalidateQueries({
         queryKey: ["user-documents"],
       });
+      toast({
+        title: "Document updated",
+        description: "Document updated successfully",
+      });
     },
   });
 
   return {
-    addDocument,
+    editDocument,
     isPending,
     error,
   };

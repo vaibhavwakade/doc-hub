@@ -2,8 +2,8 @@ import { api } from "../axios";
 export interface DocumentData {
   title: string;
   description: string;
-  docType: string;
-  file: File;
+  docType?: string;
+  file?: File;
 }
 interface documentResponse {
   title: string;

@@ -25,7 +25,7 @@ import DocsList from "@/features/Docs/DocList";
 import { PlusCircle } from "lucide-react";
 
 function Banking({ docType }: DocsFormProps) {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [_isDialogOpen, setDialogOpen] = useState(false);
   const { allDocsData, isLoading } = useDocuments(docType); // Fetch documents based on docType
   const navigate = useNavigate();
 
