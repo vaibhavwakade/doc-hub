@@ -48,21 +48,23 @@ const DocsList: React.FC<DocsListProps> = ({
 
   if (loading) {
     return (
-      <div className="flex flex-col space-y-3">
-        <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-        </div>
+      <div className="flex flex-col md:flex-row  justify-between items-center flex-wrap">
+        {Array.from({ length: 4 }, (_, index) => (
+          <Skeleton
+            className=" h-[195px] mt-10 min-w-[95%] md:min-w-96  rounded-xl bg-slate-300"
+            key={index}
+          />
+        ))}
       </div>
     );
   }
 
   return (
     <section className="docs-container grid gap-4 md:grid-cols-4 mt-8">
-      {docs?.map((doc) => (
+      {docs?.map((doc, index) => (
         <Card
-          key={doc?.id}
-          className="transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg border border-gray-200 rounded-3xl bg-white min-w-[290px]"
+          key={index}
+          className="transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg border border-gray-200 rounded-3xl bg-white min-w-[250px]"
         >
           <CardHeader className="bg-red-200">
             <CardTitle className="text-sm font-semibold text-gray-800">
@@ -126,7 +128,10 @@ const DocsList: React.FC<DocsListProps> = ({
                   </p>
                   {/* Conditionally render the Download button */}
                   {!isExpired(doc.expiryDate) && (
-                    <Button onClick={()=>window.open(doc?.fileUrl, "_blank")} className="w-full bg-blue-500 text-white hover:bg-blue-600 mt-4">
+                    <Button
+                      onClick={() => window.open(doc?.fileUrl, "_blank")}
+                      className="w-full bg-blue-500 text-white hover:bg-blue-600 mt-4"
+                    >
                       Download
                     </Button>
                   )}
