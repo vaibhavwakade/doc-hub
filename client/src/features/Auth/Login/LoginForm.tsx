@@ -25,7 +25,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const {isPending,loginUser}=useLogin()
+  const { isPending, loginUser } = useLogin();
   const {
     register,
     handleSubmit,
@@ -36,54 +36,68 @@ export default function LoginForm() {
   });
 
   const onSubmit = (data: LoginFormValues) => {
- loginUser(data,{
-  onSuccess: () => {
-    reset()
-  }
- })
+    loginUser(data, {
+      onSuccess: () => {
+        reset();
+      },
+    });
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4">
-      <Card className="mx-auto w-full max-w-md shadow-none border-none bg-transparent">
+    <div className="flex h-screen w-full items-center justify-center px-4 dark:bg-gray-900">
+      <Card className="mx-auto w-full max-w-md shadow-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <CardHeader>
-          <CardTitle className="text-2xl">Login to <span className="text-blue-600">Doc Navigator</span></CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">
+            Login to <span className="text-blue-600">Doc Navigator</span>
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-gray-900 dark:text-gray-100">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                {...register("email")} // Controlled input
+                {...register("email")}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-gray-900 dark:text-gray-100">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
-                {...register("password")} // Controlled input
+                {...register("password")}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
               {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password.message}
-                </p>
+                <p className="text-sm text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" className="w-full bg-blue-600" disabled={isPending}>
-             {isPending ? <Loader className="mr-2 h-4 w-4 animate-spin size-8" /> : "Login"}
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-600"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader className="mr-2 h-4 w-4 animate-spin size-8" />
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
             Don&apos;t have an account?{" "}
             <Link to="/auth/register" className="underline">
               Sign up

@@ -6,12 +6,13 @@ import {
   getUserDocumentsByType,
   updateDocument,
 } from "../controllers/document.controller.js";
+import { checkDocumentLimit } from "../controllers/subscription.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
 
 router.route("/create").post(
-  verifyJwt,
+  verifyJwt,checkDocumentLimit,
   upload.fields([
     {
       name: "file",

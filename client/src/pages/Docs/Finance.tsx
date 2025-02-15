@@ -52,7 +52,7 @@ function Finance({ docType }: DocsFormProps) {
           <div className="flex items-center">
             <Button
               onClick={() => {
-                navigate("/dashboard/education-steps");
+                navigate("/dashboard/finance-steps");
               }}
               className="bg-blue-500 text-white hover:bg-blue-600 mr-4  md:text-base text-[12px]"
             >

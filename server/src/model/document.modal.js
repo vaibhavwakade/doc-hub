@@ -25,7 +25,6 @@ const DocumentSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      minlength: 5,
     },
     fileUrl: {
       type: String, // URL or path to the uploaded file
@@ -45,6 +44,10 @@ const DocumentSchema = new mongoose.Schema(
       enum: ["active", "expired"],
       default: "active",
     },
+    notificationSent: {
+      type: Boolean,
+      default: false
+  }
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

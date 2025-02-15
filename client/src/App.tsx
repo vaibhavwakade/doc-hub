@@ -3,10 +3,27 @@ import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "./store/userStore";
 import { useLogout } from "./features/Auth/useLogout";
+import { useEffect } from "react";
+import Chatbot from "./pages/Docs/ChatBoat";
 
 export default function Home() {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
+    const root = window.document.documentElement
+
+    if (savedTheme) {
+      if (savedTheme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(savedTheme)
+      }
+    } else {
+      root.classList.add('light') // Default theme
+    }
+  }, [])
   const { logoutUser, isPending } = useLogout();
   return (
     <>
@@ -227,7 +244,7 @@ export default function Home() {
             </blockquote>
           </div>
         </section>
-
+        <Chatbot/>
         <footer className="text-center mt-16">
           <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-700">
             Join Now

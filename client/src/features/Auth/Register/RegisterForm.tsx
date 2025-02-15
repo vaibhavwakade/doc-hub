@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 import { useRegister } from "./useRegister";
+
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
     name: "",
@@ -19,6 +20,7 @@ export default function RegisterForm() {
     password: "",
   });
   const { registerUser, isPending } = useRegister();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -46,30 +48,37 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center px-4">
-  <Card className="mx-auto w-full max-w-md shadow-none border-none bg-transparent">
+    <div className="flex h-screen w-full items-center justify-center px-4 dark:bg-gray-900">
+      <Card className="mx-auto w-full max-w-md shadow-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <CardHeader>
-          <CardTitle className="text-2xl">Register</CardTitle>
-          <CardDescription>
-            Enter your email below to register to your account
+          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">
+            Register
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            Enter your details below to create your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="text-gray-900 dark:text-gray-100">
+                Name
+              </Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Example Yogita Shete"
+                placeholder="Example: Yogita Shete"
                 required
                 value={formData.name}
                 onChange={handleChange}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-gray-900 dark:text-gray-100">
+                Email
+              </Label>
               <Input
                 id="email"
                 name="email"
@@ -78,15 +87,18 @@ export default function RegisterForm() {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="mobile">Mobile</Label>
+              <Label htmlFor="mobile" className="text-gray-900 dark:text-gray-100">
+                Mobile
+              </Label>
               <Input
                 id="mobile"
                 name="mobile"
                 type="tel"
-                placeholder="enter your mobile number"
+                placeholder="Enter your mobile number"
                 required
                 maxLength={10}
                 minLength={10}
@@ -94,10 +106,13 @@ export default function RegisterForm() {
                 title="Please enter a valid mobile number"
                 value={formData.mobile}
                 onChange={handleChange}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-gray-900 dark:text-gray-100">
+                Password
+              </Label>
               <Input
                 id="password"
                 name="password"
@@ -106,17 +121,22 @@ export default function RegisterForm() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="********"
+                className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
-            <Button type="submit" className="w-full bg-blue-600" disabled={isPending}>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-600"
+              disabled={isPending}
+            >
               {isPending ? "Signing up..." : "Signup"}
             </Button>
           </form>
 
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
             <Link to="/auth/login" className="underline">
-              login
+              Login
             </Link>
           </div>
         </CardContent>

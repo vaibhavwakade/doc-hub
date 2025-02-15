@@ -16,6 +16,8 @@ import { DocType } from "./types/DocsType";
 import BankingSteps from "./pages/Docs/BankingSteps";
 import EducationSteps from "./pages/Docs/EducationSteps";
 import FinanceSteps from "./pages/Docs/FinanceSteps";
+import BookmarkedSteps from "./pages/Docs/Bookmark";
+import Suscription from "./pages/Suscription";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
       {
         path: "banking-steps",
         element: <BankingSteps />,
+      },
+      {
+        path: "bookmarks",
+        element: <BookmarkedSteps />,
+      },
+      {
+        path: "pricing",
+        element: <Suscription />,
       },
     ],
   },

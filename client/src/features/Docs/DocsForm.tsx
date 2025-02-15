@@ -17,67 +17,66 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCreateDocument } from "./useCreateDocument";
 import { useToast } from "@/hooks/use-toast";
 import { useUpdateDocument } from "./useUpdateDocument";
+import { UpgradeModal } from "../UpgradeModalProps";
 
-type DocsFormProps = {
+// Define the form schema type
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters.",
+  }),
+  description: z.string().min(5, {
+    message: "Description must be at least 5 characters.",
+  }),
+  expiryDate: z
+    .string()
+    .refine((date) => !isNaN(new Date(date).getTime()), {
+      message: "Please provide a valid expiry date.",
+    }),
+  file: z.instanceof(FileList).optional(),
+});
+
+// Define types for the component props
+interface DocsFormProps {
   docType: string;
-  onClose: () => void; // New prop for closing the modal
+  onClose: () => void;
   editData?: {
     title: string;
     description: string;
     id: string;
+    expireDate?: string;
   };
-};
+}
+
+// Define the form values type
+type FormValues = z.infer<typeof formSchema>;
 
 function DocsForm({ docType, onClose, editData }: DocsFormProps) {
   const { toast } = useToast();
-  const { addDocument, isPending } = useCreateDocument();
+  const { addDocument, isPending, showUpgradeModal, setShowUpgradeModal } = useCreateDocument();
   const { editDocument, isPending: isEditPending } = useUpdateDocument();
   const isEditing = !!editData?.title && !!editData?.description;
 
-  const formSchema = z.object({
-    title: z.string().min(2, {
-      message: "Title must be at least 2 characters.",
-    }),
-    description: z.string().min(5, {
-      message: "Description must be at least 5 characters.",
-    }),
-    file: isEditing
-      ? z.instanceof(FileList).optional() // File is optional when editing
-      : z
-          .instanceof(FileList)
-          .refine((file) => file.length === 1, {
-            message: "File is required.",
-          })
-          .refine(
-            (file) => file.length === 1 && file[0].type === "application/pdf",
-            {
-              message: "Only PDF files are allowed.",
-            }
-          ), // File validation when creating,
-  });
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
     defaultValues: {
-      title: isEditing ? editData?.title : "",
-      description: isEditing ? editData?.description : "",
+      title: editData?.title || "",
+      description: editData?.description || "",
+      expiryDate: editData?.expireDate || "",
     },
   });
 
-  const { register, handleSubmit } = form;
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (isEditing) {
+  const onSubmit = async (values: FormValues) => {
+    if (isEditing && editData) {
       editDocument(
         {
-          documentId: editData?.id || "",
+          documentId: editData.id,
           data: {
             title: values.title,
             description: values.description,
+            expiryDate: values.expiryDate,
           },
         },
         {
@@ -86,19 +85,20 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
               title: "Document updated",
               description: "Document updated successfully",
             });
-            onClose(); // Close the modal on success
+            onClose();
           },
         }
       );
       return;
     }
-  
+
     addDocument(
       {
-        docType: docType,
+        docType,
         title: values.title,
         description: values.description,
-        file: values?.file && values.file.length > 0 ? values.file[0] : undefined,
+        expiryDate: values.expiryDate,
+        file: values.file?.[0],
       },
       {
         onSuccess: () => {
@@ -107,26 +107,25 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
             title: "Document created",
             description: "Document created successfully",
           });
-          onClose(); // Close the modal on success
+          onClose();
         },
       }
     );
-  }
-  
+  };
 
   return (
     <div>
       <section>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Form {...form}>
-            <Card>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Card className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
               <CardHeader>
                 <CardTitle>
                   {isEditing ? "Edit " : "Create "}
-                  {docType.slice(0, 1).toUpperCase() + docType.slice(1, 18)} Doc
+                  {docType.slice(0, 1).toUpperCase() + docType.slice(1)} Doc
                 </CardTitle>
                 <CardDescription>
-                  Fill out the form below to create a new document.
+                  Fill out the form below to {isEditing ? "edit" : "create"} a document.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -140,7 +139,7 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
                         <FormControl>
                           <Input
                             type="text"
-                            className="w-full"
+                            className="w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                             placeholder="Title"
                             {...field}
                           />
@@ -156,7 +155,27 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea className="min-h-32" {...field} />
+                          <Textarea
+                            className="min-h-32 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="expiryDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Expiry Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            className="w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -172,9 +191,9 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
                           <FormControl>
                             <Input
                               type="file"
-                              className="w-full"
+                              className="w-full bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                               accept=".pdf"
-                              {...register("file")}
+                              {...form.register("file")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -184,28 +203,27 @@ function DocsForm({ docType, onClose, editData }: DocsFormProps) {
                   )}
                   <div className="flex items-center justify-end">
                     <div className="flex gap-x-5">
-                    
-                      {isEditing ? (
-                        <Button type="submit" disabled={isEditPending}>
-                          <span className="ml-1">
-                            {isEditPending ? "Updating..." : "Update"}
-                          </span>
-                        </Button>
-                      ) : (
-                        <Button type="submit" disabled={isPending}>
-                          <span className="ml-1">
-                            {isPending ? "Creating..." : "Create"}
-                          </span>
-                        </Button>
-                      )}
+                      <Button type="submit" disabled={isEditing ? isEditPending : isPending}>
+                        {isEditing
+                          ? isEditPending
+                            ? "Updating..."
+                            : "Update"
+                          : isPending
+                          ? "Creating..."
+                          : "Create"}
+                      </Button>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </Form>
-        </form>
+          </form>
+        </Form>
       </section>
+      <UpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+      />
     </div>
   );
 }

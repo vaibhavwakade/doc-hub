@@ -4,23 +4,59 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Document } from "../model/document.modal.js";
+import { UserSubscription } from "../model/subscription.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-export const createDocument = asyncHandler(async (req, res) => {
-  const { title, description, docType } = req.body;
+// Helper function to check document limits
+const checkUserDocumentLimit = async (userId) => {
+  // Check if user has active subscription
+  const activeSubscription = await UserSubscription.findOne({
+    user: userId,
+    status: 'active',
+    endDate: { $gt: new Date() }
+  }).populate('package');
 
-  if (!title || !description || !docType) {
-    return res
-      .status(400)
-      .json(
-        new ApiResponse(
-          400,
-          null,
-          "All fields are required: title, description, docType"
-        )
-      );
+  // Get current document count
+  const documentCount = await Document.countDocuments({ author: userId });
+
+  if (!activeSubscription) {
+    // Free tier limit check
+    if (documentCount >= 0) {
+      return {
+        canUpload: false,
+        message: "Free tier document limit (7) reached. Please upgrade to a subscription."
+      };
+    }
+  } else {
+    // Subscription tier limit check
+    if (documentCount >= activeSubscription.package.documentLimit) {
+      return {
+        canUpload: false,
+        message: `Subscription limit (${activeSubscription.package.documentLimit} documents) reached. Please upgrade your plan.`
+      };
+    }
+    // Update document count in subscription
+    activeSubscription.documentCount = documentCount + 1;
+    await activeSubscription.save();
   }
 
+  return {
+    canUpload: true,
+    subscription: activeSubscription
+  };
+};
+
+export const createDocument = asyncHandler(async (req, res) => {
+  const { title, description, docType, expiryDate } = req.body;
+
+  // Validate required fields
+  if (!title || !description || !docType) {
+    return res.status(400).json(
+      new ApiResponse(400, null, "All fields are required: title, description, docType")
+    );
+  }
+
+  // Validate docType
   const validDocTypes = [
     "home",
     "education",
@@ -32,24 +68,37 @@ export const createDocument = asyncHandler(async (req, res) => {
   ];
 
   if (!validDocTypes.includes(docType)) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, null, "Invalid docType provided"));
+    return res.status(400).json(
+      new ApiResponse(400, null, "Invalid docType provided")
+    );
   }
 
+  // Get the author ID from the authenticated user
   const author = req.user._id;
   if (!author) {
-    return res.status(400).json(new ApiResponse(400, null, "User not found"));
+    return res.status(400).json(
+      new ApiResponse(400, null, "User not found")
+    );
   }
 
+  // Check document limits based on subscription
+  const limitCheck = await checkUserDocumentLimit(author);
+  if (!limitCheck.canUpload) {
+    return res.status(403).json(
+      new ApiResponse(403, null, limitCheck.message)
+    );
+  }
+
+  // Rest of your existing document creation code...
+  // Validate file upload
   const files = req.files;
-
   if (!files || !files.file || !files.file[0]) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, null, "Please upload a file"));
+    return res.status(400).json(
+      new ApiResponse(400, null, "Please upload a file")
+    );
   }
 
+  // Upload file to Cloudinary
   const uploadPdfFileName = files.file[0].filename;
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -67,48 +116,55 @@ export const createDocument = asyncHandler(async (req, res) => {
   });
 
   try {
-    // Calculate expiry date
-    const creationDate = new Date();
-    const expiryDate = new Date();
-    expiryDate.setMonth(creationDate.getMonth() + 1); // Add 1 month to creation date
+    // Handle expiry date
+    let calculatedExpiryDate;
+    if (expiryDate) {
+      calculatedExpiryDate = new Date(expiryDate);
+      if (isNaN(calculatedExpiryDate)) {
+        return res.status(400).json(
+          new ApiResponse(400, null, "Invalid expiryDate format")
+        );
+      }
+    } else {
+      calculatedExpiryDate = new Date();
+      calculatedExpiryDate.setMonth(calculatedExpiryDate.getMonth() + 6);
+    }
 
+    // Create the document
     const document = await Document.create({
       title,
       description,
       fileUrl: uploadPdfFileResult.secure_url,
       docType,
-      expiryDate,
+      expiryDate: calculatedExpiryDate,
       author,
+      subscriptionId: limitCheck.subscription?._id // Track which subscription was used
     });
 
     // Delete the local file after successful upload
     await fs.promises.unlink(filePath);
 
-    res
-      .status(201)
-      .json(new ApiResponse(201, document, "Document created successfully"));
+    // Send response
+    res.status(201).json(
+      new ApiResponse(201, document, "Document created successfully")
+    );
   } catch (error) {
-    // Handle errors
-    res
-      .status(500)
-      .json(
-        new ApiResponse(
-          500,
-          null,
-          "An error occurred while creating the document"
-        )
-      );
+    console.error("Error creating document:", error);
+    res.status(500).json(
+      new ApiResponse(500, null, "An error occurred while creating the document")
+    );
   }
 });
 
+// Add subscription info to getUserDocumentsByType response
 export const getUserDocumentsByType = asyncHandler(async (req, res) => {
   const { docType } = req.query;
   const userId = req.user._id;
 
   if (!docType) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, null, "Document type (docType) is required"));
+    return res.status(400).json(
+      new ApiResponse(400, null, "Document type (docType) is required")
+    );
   }
 
   const validDocTypes = [
@@ -122,13 +178,23 @@ export const getUserDocumentsByType = asyncHandler(async (req, res) => {
   ];
 
   if (!validDocTypes.includes(docType)) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, null, "Invalid docType provided"));
+    return res.status(400).json(
+      new ApiResponse(400, null, "Invalid docType provided")
+    );
   }
 
   try {
-    // Fetch documents created by the user with the given docType
+    // Get subscription status
+    const subscription = await UserSubscription.findOne({
+      user: userId,
+      status: 'active',
+      endDate: { $gt: new Date() }
+    }).populate('package');
+
+    // Get document count
+    const totalDocuments = await Document.countDocuments({ author: userId });
+
+    // Fetch documents
     const documents = await Document.find({
       author: userId,
       docType: docType,
@@ -138,34 +204,25 @@ export const getUserDocumentsByType = asyncHandler(async (req, res) => {
       createdAt: -1,
     });
 
-    if (documents.length === 0) {
-      return res
-        .status(404)
-        .json(
-          new ApiResponse(
-            404,
-            null,
-            "No documents found for this user and docType"
-          )
-        );
-    }
+    const response = {
+      documents,
+      subscriptionInfo: {
+        type: subscription ? 'paid' : 'free',
+        documentsUsed: totalDocuments,
+        documentsLimit: subscription ? subscription.package.documentLimit : 7,
+        remainingDocuments: subscription 
+          ? subscription.package.documentLimit - totalDocuments 
+          : 7 - totalDocuments
+      }
+    };
 
-    res
-      .status(200)
-      .json(
-        new ApiResponse(200, documents, "Documents retrieved successfully")
-      );
+    res.status(200).json(
+      new ApiResponse(200, response, "Documents retrieved successfully")
+    );
   } catch (error) {
-    // Handle errors
-    res
-      .status(500)
-      .json(
-        new ApiResponse(
-          500,
-          null,
-          "An error occurred while retrieving documents"
-        )
-      );
+    res.status(500).json(
+      new ApiResponse(500, null, "An error occurred while retrieving documents")
+    );
   }
 });
 

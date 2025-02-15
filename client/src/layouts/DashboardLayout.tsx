@@ -1,7 +1,7 @@
-import * as React from "react";
 import {
   BadgeCheck,
-  Bell,
+  
+  BookMarked,
   ChevronRight,
   ChevronsUpDown,
   CloudUpload,
@@ -23,7 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
@@ -48,11 +47,18 @@ import {
 import { Link, Navigate, Outlet } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 import { useLogout } from "@/features/Auth/useLogout";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useNavigate } from 'react-router-dom';
+import { useStatus } from "@/features/Docs/useCheckStatus";
 // This is sample data.
 
 
 export default function Dashboard() {
   const token = useUserStore((state) => state.user);
+  const navigate = useNavigate();
+  const { status }=useStatus()
+
+  
 const {logoutUser,isPending}=useLogout()
   const data = {
     user: {
@@ -106,11 +112,15 @@ const {logoutUser,isPending}=useLogout()
       },
     ],
   };
-  const [activeTeam, setActiveTeam] = React.useState(data.teams[0]);
+  // const [activeTeam, setActiveTeam] = React.useState(data.teams[0]);
 
   if (!token) {
     return <Navigate to={"/auth/login"} replace />;
   }
+  const handleBookmarkClick = () => {
+    navigate('/dashboard/bookmarks'); // Replace '/bookmarks' with your actual route
+  };
+
   
   return (
     <SidebarProvider>
@@ -118,7 +128,7 @@ const {logoutUser,isPending}=useLogout()
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     size="lg"
@@ -162,7 +172,23 @@ const {logoutUser,isPending}=useLogout()
                   ))}
                   <DropdownMenuSeparator />
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
+             <SidebarMenuItem>
+  <SidebarMenuButton
+    size="lg"
+    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+  >
+    <div className="flex aspect-square items-center justify-center rounded-lg bg-slate-50">
+      <img
+        src="/logo.jpeg"
+        alt="Team Logo"
+        className="text-4xl bg-slate-50 h-14 rounded-lg"
+      />
+    </div>
+  </SidebarMenuButton>
+</SidebarMenuItem>
+
+
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
@@ -211,19 +237,25 @@ const {logoutUser,isPending}=useLogout()
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground relative"
                   >
+                    
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
                         src={data.user.avatar}
                         alt={data.user.name}
                       />
                       <AvatarFallback className="rounded-lg">{data.user.name ? data.user.name[0] : "CN"}</AvatarFallback>
+                      
                     </Avatar>
+                  
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
                         {data.user.name}
                       </span>
+                      <span className="absolute text-xs text-black top-2 right-0 bg-white px-5 py-1">
+       {status?.data?.isFreeTier ? "Free":"Paid"}
+      </span>
                       <span className="truncate text-xs">
                         {data.user.email}
                       </span>
@@ -244,6 +276,7 @@ const {logoutUser,isPending}=useLogout()
                           src={data.user.avatar}
                           alt={data.user.name}
                         />
+                       
                         <AvatarFallback className="rounded-lg">
                          {data.user.name ? data.user.name[0] : "CN"}
                         </AvatarFallback>
@@ -262,11 +295,12 @@ const {logoutUser,isPending}=useLogout()
 
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
+                    <Link to="/dashboard/pricing">
                     <DropdownMenuItem>
                       <BadgeCheck />
-                     Profile
+                     Suscription
                     </DropdownMenuItem>
-
+                    </Link>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={()=>logoutUser()}>
@@ -285,7 +319,10 @@ const {logoutUser,isPending}=useLogout()
           <div className="flex items-center gap-2 px-4  ">
             <SidebarTrigger className="-ml-1 " />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Bell className="h-5 w-5" />
+            <BookMarked className="h-5 w-5" onClick={handleBookmarkClick}/>
+          </div>
+          <div className="ml-auto mr-4">
+            <ThemeSwitcher />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

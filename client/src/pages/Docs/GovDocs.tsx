@@ -50,14 +50,14 @@ function GovDocs({ docType }: DocsFormProps) {
         </Breadcrumb>
         <Dialog>
           <div className="flex items-center">
-            <Button
+            {/* <Button
               onClick={() => {
                 navigate("/dashboard/gov-steps");
               }}
               className="bg-blue-500 text-white hover:bg-blue-600 mr-4  md:text-base text-[12px]"
             >
             <span>Gov Steps</span>
-            </Button>
+            </Button> */}
             <DialogTrigger asChild>
               <Button className="bg-blue-500 text-white hover:bg-blue-600  md:text-base text-[12px]">
                 <PlusCircle />

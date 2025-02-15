@@ -19,10 +19,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Eye, Trash2, Calendar, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteDocument } from "./useDeleteDocuments";
 import EditDoc from "./EditDoc";
+
 interface Doc {
   description: string;
   docType: string;
@@ -38,29 +39,38 @@ interface Doc {
   fileUrl: string;
 }
 
+// Updated interface to match the actual data structure
 interface DocsListProps {
-  docs: Doc[];
-  onViewDetails: (doc: Doc) => void;
+  docs: {
+    documents: Doc[];
+  };
+  onViewDetails?: (doc: Doc) => void;  // Made optional since it's not used
   loading: boolean;
 }
 
 const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
   const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null);
   const { removeDocument, isPending } = useDeleteDocument();
+
   const canDownload = (createdAt: string, expiryDate: Date) => {
     const currentDate = new Date();
     const createdDate = new Date(createdAt);
     const expirationDate = new Date(expiryDate);
-
     return currentDate >= createdDate && currentDate <= expirationDate;
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === "Expired"
+      ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-200 dark:text-red-900 dark:border-red-300"
+      : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-200 dark:text-emerald-900 dark:border-emerald-300";
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col md:flex-row  justify-between items-center flex-wrap">
-        {Array.from({ length: 4 }, (_, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {Array.from({ length: 8 }, (_, index) => (
           <Skeleton
-            className=" h-[195px] mt-10 min-w-[95%] md:min-w-96  rounded-xl bg-slate-300"
+            className="h-44 rounded-lg bg-slate-100 dark:bg-slate-700"
             key={index}
           />
         ))}
@@ -69,47 +79,53 @@ const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
   }
 
   return (
-    <section className="docs-container grid gap-4 md:grid-cols-4 mt-8">
-      {docs?.map((doc, index) => (
+    <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+      {docs?.documents?.map((doc, index) => (
         <Card
           key={index}
-          className="transition-transform transform hover:scale-105 shadow-sm hover:shadow-lg border border-gray-200 rounded-3xl bg-white min-w-[250px]"
+          className="group border-2 border-gray-100 rounded-lg bg-white overflow-hidden hover:border-blue-200 hover:shadow-md transition-all duration-300 dark:border-gray-700 dark:bg-blue-800 dark:hover:border-blue-400"
         >
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-800">
-              {doc?.title}
-            </CardTitle>
+          <CardHeader className="space-y-2 pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-1">
+                {doc?.title}
+              </CardTitle>
+              <Badge
+                variant="outline"
+                className={`${getStatusColor(doc.status)} text-xs`}
+              >
+                {doc?.status}
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent className="">
-            <p className="text-base text-gray-500">
-              <span className="text-gray-800 font-semibold">Date :</span>{" "}
-              {doc?.createdAt
-                ? new Date(doc?.createdAt).toLocaleString()
-                : "N/A"}
-            </p>
-            <p className="text-sm mt-3 text-gray-500">
-              <span className="text-gray-800 font-semibold">Expiry Date :</span>{" "}
-              {doc?.expiryDate
-                ? new Date(doc?.expiryDate).toLocaleString()
-                : "N/A"}
-            </p>
-            <Badge
-              variant="destructive"
-              className={`mt-3 ${
-                doc.status === "Expired" ? "bg-red-100" : "bg-green-100"
-              } text-black`}
-            >
-              {doc?.status}
-            </Badge>
+
+          <CardContent className="space-y-3 pb-3">
+            <div className="flex items-center text-xs gap-2">
+              <Calendar size={14} className="text-gray-500 dark:text-gray-400" />
+              <span className="text-gray-600 dark:text-gray-300">Created:</span>
+              <span className="font-medium dark:text-gray-100">
+                {doc?.createdAt
+                  ? new Date(doc?.createdAt).toLocaleDateString()
+                  : "N/A"}
+              </span>
+            </div>
+            <div className="flex items-center text-xs gap-2">
+              <Clock size={14} className="text-gray-500 dark:text-gray-400" />
+              <span className="text-gray-600 dark:text-gray-300">Expires:</span>
+              <span className="font-medium dark:text-gray-100">
+                {doc?.expiryDate
+                  ? new Date(doc?.expiryDate).toLocaleDateString()
+                  : "N/A"}
+              </span>
+            </div>
           </CardContent>
-          <CardFooter className="flex justify-between items-center">
-            <div className="flex space-x-2">
-              {/* Edit Button */}
+
+          <CardFooter className="flex justify-between items-center pt-3 border-t bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
+            <div className="flex space-x-1">
               <Button
                 variant="ghost"
-                size="icon"
-                onClick={() => {}}
-                className="text-blue-600 hover:bg-blue-50"
+                size="sm"
+                className="h-8 w-8 p-0 text-blue-600 dark:text-blue-400"
               >
                 <EditDoc
                   docType={doc?.docType}
@@ -118,29 +134,32 @@ const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
                   id={doc?._id as unknown as string}
                 />
               </Button>
-              {/* Delete Button */}
+
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="text-red-600 hover:bg-red-50"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-red-600 dark:text-red-400"
                     onClick={() => setSelectedDoc(doc)}
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="sm:max-w-md dark:bg-gray-800 dark:text-gray-100">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Delete Document</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      <span className="font-semibold"> {doc.title}</span>.
+                      Delete{" "}
+                      <span className="font-medium">{doc.title}</span>?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogFooter className="gap-2">
+                    <AlertDialogCancel className="mt-0">
+                      Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
                       disabled={isPending}
                       onClick={() => {
                         removeDocument(doc?._id as unknown as string);
@@ -153,47 +172,62 @@ const DocsList: React.FC<DocsListProps> = ({ docs, loading }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-            {/* View Details Button */}
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="text-blue-600 border-blue-600 hover:bg-blue-50 md:text-base text-[12px]"
+                  size="sm"
+                  className="h-8 text-xs dark:text-gray-300"
                   onClick={() => setSelectedDoc(doc)}
                 >
-                  View Info
+                  <Eye size={14} className="mr-1" />
+                  View
                 </Button>
               </AlertDialogTrigger>
               {selectedDoc && selectedDoc._id === doc._id && (
-                <AlertDialogContent>
+                <AlertDialogContent className="sm:max-w-md dark:bg-gray-800 dark:text-gray-100">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Document Details</AlertDialogTitle>
                   </AlertDialogHeader>
-                  <AlertDialogDescription className="prose space-y-4">
-                    <p>
-                      <span className="font-semibold">Title : </span>
-                      {selectedDoc.title}
-                    </p>
-
-                    <p>
-                      <span className="font-semibold">Title : </span>
-                      {selectedDoc.description}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Date : </span>
-                      {new Date(selectedDoc.createdAt).toLocaleString()}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Expiry Date : </span>
-                      {new Date(selectedDoc.expiryDate).toLocaleString()}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Status : </span>
-                      {selectedDoc.status}
-                    </p>
-                  </AlertDialogDescription>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Close</AlertDialogCancel>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <h4 className="text-sm text-gray-500 dark:text-gray-300">
+                        Title
+                      </h4>
+                      <p className="text-gray-900 dark:text-gray-100">
+                        {selectedDoc.title}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm text-gray-500 dark:text-gray-300">
+                        Description
+                      </h4>
+                      <p className="text-gray-900 dark:text-gray-100">
+                        {selectedDoc.description}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h4 className="text-sm text-gray-500 dark:text-gray-300">
+                          Created
+                        </h4>
+                        <p className="text-gray-900 dark:text-gray-100">
+                          {new Date(selectedDoc.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="text-sm text-gray-500 dark:text-gray-300">
+                          Expires
+                        </h4>
+                        <p className="text-gray-900 dark:text-gray-100">
+                          {new Date(selectedDoc.expiryDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <AlertDialogFooter className="gap-2">
+                    <AlertDialogCancel className="mt-0">Close</AlertDialogCancel>
                     {canDownload(
                       selectedDoc.createdAt,
                       selectedDoc.expiryDate
